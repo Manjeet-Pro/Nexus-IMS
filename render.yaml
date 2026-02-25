@@ -1,0 +1,52 @@
+services:
+  # Backend API
+  - type: web
+    name: nexus-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+  # Frontend Dashboard
+  - type: static
+    name: nexus-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    headers:
+      - path: /*
+        headers:
+          - key: Cache-Control
+            value: no-cache
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: nexus-backend
+          property: url
+        value: ${nexus-backend.url}/api
+      - key: VITE_SOCKET_URL
+        fromService:
+          type: web
+          name: nexus-backend
+          property: url
+    routes:
+      - type: rewrite
+        src: /*
+        dest: /index.html

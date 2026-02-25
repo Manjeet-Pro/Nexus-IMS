@@ -1,0 +1,30 @@
+✅ Connected to MongoDB
+---------------------------------------------------
+🔍 Checking Student Integration...
+   Found 3 students.
+   ❌ ORPHAN STUDENT: 698afb50d7c155ba98b33a1d (No User Linked)
+   ⚠️ Student Wahib (STU7475) is NOT enrolled in any course.
+   ✅ Fees linked: 1 records (1 pending).
+   ⚠️ Student Krishna (STU1017) is NOT enrolled in any course.
+   ⚠️ No fee records found for Krishna.
+
+---------------------------------------------------
+🔍 Checking Faculty & Course Integration...
+   Found 4 courses.
+   ✅ Course Data Structures & Algorithms assigned to MR.Arman Malik.
+   ✅ Course Database Management Systems assigned to Rishab.
+   ✅ Course Computer Networks assigned to Rishab.
+   ⚠️ Course Data Structures (CS101) has NO Instructor assigned.
+
+---------------------------------------------------
+🔍 Checking Parent-Student Linkage...
+   Found 3 parents.
+   ⚠️ Parent Mnajee has NO children linked.
+   ⚠️ Parent Mnajeet has NO children linked.
+   ✅ Parent raju linked to children: STU7475
+
+---------------------------------------------------
+🔍 Found 5 Notices.
+   ✅ 1 notices exist for Parents.
+
+🏁 Integration Verification Complete.
