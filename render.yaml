@@ -22,12 +22,13 @@ services:
         sync: false
 
   # Frontend Dashboard
-  - type: static_site
+  - type: web
     name: nexus-frontend
+    runtime: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: dist
+    staticPublishPath: ./dist
     headers:
       - path: /*
         headers:
@@ -44,4 +45,4 @@ services:
     routes:
       - type: rewrite
         src: /*
-        dest: /index.html
+        dest: index.html
