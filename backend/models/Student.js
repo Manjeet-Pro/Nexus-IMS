@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const studentSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     rollNo: { type: String, required: true, unique: true },
-    course: { type: String, required: true },
-    year: { type: String, required: true },
+    course: { type: String },
+    year: { type: String },
     semester: { type: String, default: '1st' },
     sections: { type: String }, // e.g., 'A', 'B'
     cgpa: { type: Number, default: 0 },

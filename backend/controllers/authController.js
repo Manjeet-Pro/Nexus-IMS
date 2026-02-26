@@ -43,6 +43,8 @@ exports.registerUser = async (req, res) => {
         const verificationToken = crypto.randomBytes(32).toString('hex');
         const verificationTokenExpire = Date.now() + 3600000; // 1 hour
 
+        const isEmailConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+
         const user = await User.create({
             name,
             email,
@@ -50,7 +52,7 @@ exports.registerUser = async (req, res) => {
             role,
             verificationToken,
             verificationTokenExpire,
-            isVerified: false
+            isVerified: !isEmailConfigured // Auto-verify if email service is not set up
         });
 
         if (user) {
@@ -59,8 +61,8 @@ exports.registerUser = async (req, res) => {
                 await Student.create({
                     user: user._id,
                     rollNo: extraData?.rollNo || `STU${Math.floor(1000 + Math.random() * 9000)}`,
-                    course: extraData?.course || '',
-                    year: extraData?.year || '',
+                    course: extraData?.course || 'General',
+                    year: extraData?.year || new Date().getFullYear().toString(),
                     ...extraData
                 });
             } else if (role === 'faculty') {
@@ -94,9 +96,11 @@ exports.registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                isVerified: false,
-                message: 'Registration successful. Please check your email to verify your account.',
-                // token: generateToken(user._id) // Do NOT send token until verified
+                isVerified: user.isVerified,
+                message: user.isVerified
+                    ? 'Registration successful! You can now login.'
+                    : 'Registration successful. Please check your email to verify your account.',
+                token: user.isVerified ? generateToken(user._id) : undefined
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
