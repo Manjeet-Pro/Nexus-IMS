@@ -31,9 +31,8 @@ services:
     staticPublishPath: ./dist
     headers:
       - path: /*
-        headers:
-          - key: Cache-Control
-            value: no-cache
+        name: Cache-Control
+        value: no-cache
     envVars:
       - key: VITE_API_URL
         value: ${nexus-backend.url}/api
@@ -44,5 +43,5 @@ services:
           property: url
     routes:
       - type: rewrite
-        src: /*
-        dest: index.html
+        source: /*
+        destination: /index.html
