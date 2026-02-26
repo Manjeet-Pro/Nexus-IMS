@@ -34,13 +34,14 @@ services:
         name: Cache-Control
         value: no-cache
     envVars:
-      - key: VITE_API_URL
-        value: ${nexus-backend.url}/api
+    envVars:
       - key: VITE_SOCKET_URL
         fromService:
           type: web
           name: nexus-backend
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_API_URL
+        value: ${VITE_SOCKET_URL}/api
     routes:
       - type: rewrite
         source: /*
