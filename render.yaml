@@ -34,7 +34,6 @@ services:
         name: Cache-Control
         value: no-cache
     envVars:
-    envVars:
       - key: VITE_SOCKET_URL
         fromService:
           type: web
