@@ -22,9 +22,8 @@ services:
         sync: false
 
   # Frontend Dashboard
-  - type: static
+  - type: static_site
     name: nexus-frontend
-    env: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
@@ -36,10 +35,6 @@ services:
             value: no-cache
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: nexus-backend
-          property: url
         value: ${nexus-backend.url}/api
       - key: VITE_SOCKET_URL
         fromService:

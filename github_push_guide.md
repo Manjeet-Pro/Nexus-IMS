@@ -44,3 +44,23 @@ git push -u origin main
 - **Auth:** If GitHub asks for a password, use a Personal Access Token (PAT) or log in via the browser pop-up.
 
 Once pushed, you can proceed to **Render** and link this repository!
+
+## Troubleshooting: "Push Rejected" Errors
+Yeh error tab aata hai jab GitHub par kuch files (jaise README) pehle se hain jo aapke local computer par nahi hain.
+
+Isse fix karne ke liye yeh commands chalayein:
+
+```powershell
+# Remote changes ko pull aur merge karein
+git pull origin main --allow-unrelated-histories
+
+# AGAR CONFLICT AAYE (jaise README.md mein):
+# 1. Conflict wali file add karein
+git add README.md
+
+# 2. Merge commit karein
+git commit -m "Resolved merge conflict"
+
+# 3. Iske baad dobara push karein
+git push -u origin main
+```
