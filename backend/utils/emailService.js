@@ -12,8 +12,9 @@ const sendVerificationEmail = async (email, token) => {
             }
         });
 
-        // Verification Link
-        const verificationUrl = `http://localhost:5173/verify-email/${token}`;
+        // Verification Link (Use FRONTEND_URL from env or fallback)
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const verificationUrl = `${frontendUrl}/verify-email/${token}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -181,7 +182,8 @@ const sendPasswordResetEmail = async (email, token) => {
             }
         });
 
-        const resetUrl = `http://localhost:5173/reset-password/${token}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const resetUrl = `${frontendUrl}/reset-password/${token}`;
 
         const mailOptions = {
             from: `"Nexus Institute" <${process.env.EMAIL_USER}>`,

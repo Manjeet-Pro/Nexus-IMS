@@ -20,6 +20,11 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: nexus-frontend
+          envVarKey: RENDER_EXTERNAL_URL
 
   # Frontend Dashboard
   - type: web
