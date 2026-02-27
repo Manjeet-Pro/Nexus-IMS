@@ -5,11 +5,13 @@ const sendVerificationEmail = async (email, token) => {
         // Create transporter
         // If credentials are missing, this will fail or we can use Ethereal for dev
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // or your preferred service
+            service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
-            }
+            },
+            debug: true, // Show detailed logs
+            logger: true // Log to console
         });
 
         // Verification Link (Use FRONTEND_URL from env or fallback)

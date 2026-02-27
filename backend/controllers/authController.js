@@ -52,7 +52,7 @@ exports.registerUser = async (req, res) => {
             role,
             verificationToken,
             verificationTokenExpire,
-            isVerified: true // Set to true by default on Render to prevent lock-outs
+            isVerified: false // Proper flow: verify via email first
         });
 
         console.log("DEBUG: User created successfully:", user._id);
@@ -103,17 +103,14 @@ exports.registerUser = async (req, res) => {
                     console.error("Check your EMAIL_USER and EMAIL_PASS on Render.");
                 });
 
-            console.log("DEBUG: Sending success response to client.");
+            console.log("DEBUG: Sending registration response.");
             return res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                isVerified: user.isVerified,
-                message: user.isVerified
-                    ? 'Registration successful! You can now login.'
-                    : 'Registration successful. Please check your email to verify your account.',
-                token: user.isVerified ? generateToken(user._id) : undefined
+                isVerified: false,
+                message: 'Registration successful. Please check your email to verify your account.'
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
