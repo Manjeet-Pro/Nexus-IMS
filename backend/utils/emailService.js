@@ -6,14 +6,19 @@ const sendVerificationEmail = async (email, token) => {
         console.log("DEBUG: EMAIL_USER:", process.env.EMAIL_USER ? "Present" : "MISSING");
         console.log("DEBUG: EMAIL_PASS:", process.env.EMAIL_PASS ? "Present" : "MISSING");
 
-        // Create transporter with explicit settings for better reliability
+        console.log("DEBUG: Using SMTP Config: smtp.gmail.com:587 (STARTTLS)");
+
+        // Create transporter with STARTTLS (usually better for cloud providers)
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 465,
-            secure: true, // use SSL
+            port: 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false // Helps in some restricted environments
             },
             debug: true,
             logger: true
