@@ -92,25 +92,29 @@ exports.registerUser = async (req, res) => {
             }
 
             console.log("DEBUG: Profile created, attempting to send email...");
-            // 3. Send Verification Email (Non-blocking)
-            sendVerificationEmail(user.email, verificationToken)
-                .then(sent => {
-                    if (sent) console.log("✅ DEBUG: Verification email delivered to:", user.email);
-                    else console.log("⚠️ DEBUG: Email delivery skipped (Service not configured)");
-                })
-                .catch(e => {
-                    console.error("❌ DEBUG: Email Service Error:", e.message);
-                    console.error("Check your EMAIL_USER and EMAIL_PASS on Render.");
-                });
 
-            console.log("DEBUG: Sending registration response.");
+            let emailSent = false;
+            try {
+                // Try to send email but don't hang for more than 10 seconds
+                emailSent = await Promise.race([
+                    sendVerificationEmail(user.email, verificationToken),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 10000))
+                ]);
+                console.log("DEBUG: Email sent result:", emailSent);
+            } catch (emailError) {
+                console.error("❌ DEBUG: Email sending error during registration:", emailError.message);
+            }
+
             return res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
                 isVerified: false,
-                message: 'Registration successful. Please check your email to verify your account.'
+                message: emailSent
+                    ? 'Registration successful. Please check your email to verify your account.'
+                    : 'Registration successful, but we couldn\'t send a verification email. Please contact support.',
+                emailSent
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });

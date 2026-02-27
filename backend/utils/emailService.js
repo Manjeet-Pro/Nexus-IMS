@@ -2,16 +2,21 @@ const nodemailer = require('nodemailer');
 
 const sendVerificationEmail = async (email, token) => {
     try {
-        // Create transporter
-        // If credentials are missing, this will fail or we can use Ethereal for dev
+        console.log("DEBUG: Preparing to send email to:", email);
+        console.log("DEBUG: EMAIL_USER:", process.env.EMAIL_USER ? "Present" : "MISSING");
+        console.log("DEBUG: EMAIL_PASS:", process.env.EMAIL_PASS ? "Present" : "MISSING");
+
+        // Create transporter with explicit settings for better reliability
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true, // use SSL
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
-            debug: true, // Show detailed logs
-            logger: true // Log to console
+            debug: true,
+            logger: true
         });
 
         // Verification Link (Use FRONTEND_URL from env or fallback)
