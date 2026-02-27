@@ -24,8 +24,11 @@ const sendVerificationEmail = async (email, token) => {
             logger: true
         });
 
-        // Verification Link (Use FRONTEND_URL from env or fallback)
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        // Verification Link (Sanitize the URL to avoid double slashes)
+        let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        if (frontendUrl.endsWith('/')) {
+            frontendUrl = frontendUrl.slice(0, -1);
+        }
         const verificationUrl = `${frontendUrl}/verify-email/${token}`;
 
         const mailOptions = {
