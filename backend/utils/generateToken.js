@@ -2,10 +2,9 @@ const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => {
     if (!process.env.JWT_SECRET) {
-        console.error("CRITICAL ERROR: JWT_SECRET is missing! Using fallback.");
+        throw new Error("JWT_SECRET is missing from environment variables");
     }
-    const secret = process.env.JWT_SECRET || "fallback_secret_123456";
-    return jwt.sign({ id }, secret, {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
