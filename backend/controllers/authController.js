@@ -91,32 +91,24 @@ exports.registerUser = async (req, res) => {
                 });
             }
 
-            console.log("DEBUG: Profile created, attempting to send email...");
+            console.log("DEBUG: Profile created. Sending email in background...");
 
-            let emailResult = { success: false };
-            try {
-                // Try to send email but don't hang for more than 15 seconds
-                emailResult = await Promise.race([
-                    sendVerificationEmail(user.email, verificationToken),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP Connection Timeout (Render is too slow)')), 15000))
-                ]);
-                console.log("DEBUG: Email sent result:", emailResult);
-            } catch (emailError) {
-                emailResult = { success: false, error: emailError.message };
-                console.error("❌ DEBUG: Email sending error during registration:", emailError.message);
-            }
+            // 3. Send Verification Email (NON-BLOCKING - to avoid Render timeouts)
+            sendVerificationEmail(user.email, verificationToken)
+                .then(sent => {
+                    if (sent.success) console.log("✅ DEBUG: Verification email delivered to:", user.email);
+                    else console.log("⚠️ DEBUG: Email failed:", sent.error);
+                })
+                .catch(e => console.error("❌ DEBUG: Background Email Error:", e.message));
 
+            // Respond immediately so the user isn't stuck waiting
             return res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
                 isVerified: false,
-                message: emailResult.success
-                    ? 'Registration successful. Please check your email to verify your account.'
-                    : `Account created, but email failed: ${emailResult.error || 'Unknown Error'}. Please contact Admin.`,
-                emailSent: emailResult.success,
-                smtpError: emailResult.error
+                message: 'Registration successful! Please check your email inbox (and Spam folder) in a few minutes.'
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
