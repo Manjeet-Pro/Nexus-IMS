@@ -93,15 +93,16 @@ exports.registerUser = async (req, res) => {
 
             console.log("DEBUG: Profile created, attempting to send email...");
 
-            let emailSent = false;
+            let emailResult = { success: false };
             try {
-                // Try to send email but don't hang for more than 10 seconds
-                emailSent = await Promise.race([
+                // Try to send email but don't hang for more than 15 seconds
+                emailResult = await Promise.race([
                     sendVerificationEmail(user.email, verificationToken),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 10000))
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP Connection Timeout (Render is too slow)')), 15000))
                 ]);
-                console.log("DEBUG: Email sent result:", emailSent);
+                console.log("DEBUG: Email sent result:", emailResult);
             } catch (emailError) {
+                emailResult = { success: false, error: emailError.message };
                 console.error("❌ DEBUG: Email sending error during registration:", emailError.message);
             }
 
@@ -111,10 +112,11 @@ exports.registerUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 isVerified: false,
-                message: emailSent
+                message: emailResult.success
                     ? 'Registration successful. Please check your email to verify your account.'
-                    : 'Registration successful, but we couldn\'t send a verification email. Please contact support.',
-                emailSent
+                    : `Account created, but email failed: ${emailResult.error || 'Unknown Error'}. Please contact Admin.`,
+                emailSent: emailResult.success,
+                smtpError: emailResult.error
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });

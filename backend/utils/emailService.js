@@ -49,22 +49,15 @@ const sendVerificationEmail = async (email, token) => {
 
         if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
             const info = await transporter.sendMail(mailOptions);
-            console.log('Verification email sent:', info.messageId);
-            return true;
+            console.log('✅ Verification email sent:', info.messageId);
+            return { success: true };
         } else {
-            console.log('---------------------------------------------------');
-            console.log('⚠️ EMAIL SERVICE NOT CONFIGURED');
-            console.log(`To: ${email}`);
-            console.log(`Token: ${token}`);
-            console.log(`Link: ${verificationUrl}`);
-            console.log('Add EMAIL_USER and EMAIL_PASS to .env to send real emails.');
-            console.log('---------------------------------------------------');
-            return false; // Return false but don't throw, allowing registration to proceed in dev
+            return { success: false, error: 'EMAIL_USER or EMAIL_PASS not set' };
         }
 
     } catch (error) {
-        console.error('Error sending verification email:', error);
-        return false;
+        console.error('❌ SMTP Error Details:', error);
+        return { success: false, error: error.message };
     }
 };
 

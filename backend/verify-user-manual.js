@@ -5,7 +5,7 @@ const User = require('./models/User');
 const MONGODB_URI = 'mongodb+srv://nexus_ims:rnU5lUChdc1IFQs4@cluster0.e9kx9z8.mongodb.net/?appName=Cluster0';
 
 // UPDATE THIS with the email you want to verify
-const EMAIL_TO_VERIFY = 'nexusims2026@gmail.com';
+const EMAIL_TO_VERIFY = 'iitzmanjeet07@gmail.com';
 
 async function run() {
     try {
