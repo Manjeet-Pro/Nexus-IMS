@@ -55,8 +55,11 @@ exports.registerUser = async (req, res) => {
             isVerified: !isEmailConfigured // Auto-verify if email service is not set up
         });
 
+        console.log("DEBUG: User created successfully:", user._id);
+
         if (user) {
             // Create specific profile based on role
+            console.log("DEBUG: Creating profile for role:", role);
             if (role === 'student') {
                 await Student.create({
                     user: user._id,
@@ -88,10 +91,14 @@ exports.registerUser = async (req, res) => {
                 });
             }
 
-            // 3. Send Verification Email
-            const emailSent = await sendVerificationEmail(user.email, verificationToken);
+            console.log("DEBUG: Profile created, attempting to send email...");
+            // 3. Send Verification Email (Non-blocking)
+            sendVerificationEmail(user.email, verificationToken)
+                .then(sent => console.log("DEBUG: Email sent status:", sent))
+                .catch(e => console.error("DEBUG: Email send failed:", e));
 
-            res.status(201).json({
+            console.log("DEBUG: Sending success response to client.");
+            return res.status(201).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
