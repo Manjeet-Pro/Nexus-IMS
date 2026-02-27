@@ -77,6 +77,11 @@ const io = socketUtils.init(server);
 console.log("DEBUG: Loading Environment Variables...");
 console.log("DEBUG: MONGODB_URI starts with:", MONGODB_URI ? MONGODB_URI.substring(0, 15) + "..." : "UNDEFINED");
 console.log("DEBUG: JWT_SECRET exists:", !!process.env.JWT_SECRET);
+console.log("DEBUG: EMAIL_USER set:", !!process.env.EMAIL_USER);
+console.log("DEBUG: EMAIL_PASS set:", !!process.env.EMAIL_PASS);
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log("⚠️ WARNING: Email service will run in SIMULATION mode because credentials are missing.");
+}
 
 mongoose.connect(MONGODB_URI)
     .then(() => {
