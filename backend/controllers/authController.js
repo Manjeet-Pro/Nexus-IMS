@@ -52,7 +52,7 @@ exports.registerUser = async (req, res) => {
             role,
             verificationToken,
             verificationTokenExpire,
-            isVerified: !isEmailConfigured // Auto-verify if email service is not set up
+            isVerified: true // Set to true by default on Render to prevent lock-outs
         });
 
         console.log("DEBUG: User created successfully:", user._id);
@@ -94,8 +94,14 @@ exports.registerUser = async (req, res) => {
             console.log("DEBUG: Profile created, attempting to send email...");
             // 3. Send Verification Email (Non-blocking)
             sendVerificationEmail(user.email, verificationToken)
-                .then(sent => console.log("DEBUG: Email sent status:", sent))
-                .catch(e => console.error("DEBUG: Email send failed:", e));
+                .then(sent => {
+                    if (sent) console.log("✅ DEBUG: Verification email delivered to:", user.email);
+                    else console.log("⚠️ DEBUG: Email delivery skipped (Service not configured)");
+                })
+                .catch(e => {
+                    console.error("❌ DEBUG: Email Service Error:", e.message);
+                    console.error("Check your EMAIL_USER and EMAIL_PASS on Render.");
+                });
 
             console.log("DEBUG: Sending success response to client.");
             return res.status(201).json({
