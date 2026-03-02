@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Create axios instance
 const api = axios.create({
@@ -17,6 +17,13 @@ api.interceptors.request.use(
         if (user && user.token) {
             config.headers.Authorization = `Bearer ${user.token}`;
         }
+
+        // Auto-prepend /api to the URL if it doesn't have it
+        if (config.url && !config.url.startsWith('/api') && !config.url.startsWith('http')) {
+            const separator = config.url.startsWith('/') ? '' : '/';
+            config.url = `/api${separator}${config.url}`;
+        }
+
         return config;
     },
     (error) => Promise.reject(error)
