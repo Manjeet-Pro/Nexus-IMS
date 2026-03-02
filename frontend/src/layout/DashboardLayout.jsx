@@ -2,11 +2,8 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { getCurrentUser } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import AdminSidebar from '../components/AdminSidebar';
-import FacultySidebar from '../components/FacultySidebar';
-import StudentSidebar from '../components/StudentSidebar';
-import ParentSidebar from '../components/ParentSidebar';
 import Chatbot from '../components/Chatbot';
 
 const DashboardLayout = () => {
@@ -16,23 +13,7 @@ const DashboardLayout = () => {
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const closeSidebar = () => setSidebarOpen(false);
 
-    // Select Sidebar based on role
-    const getSidebar = () => {
-        switch (user?.role) {
-            case 'admin':
-                return <AdminSidebar onClose={closeSidebar} />;
-            case 'faculty':
-                console.log("Rendering Faculty Sidebar");
-                return <FacultySidebar onClose={closeSidebar} />;
-            case 'student':
-                return <StudentSidebar onClose={closeSidebar} />;
-            case 'parent':
-                console.log("Rendering Parent Sidebar");
-                return <ParentSidebar onClose={closeSidebar} />;
-            default:
-                return null;
-        }
-    };
+    if (!user) return null; // Should be handled by ProtectedRoute, but safeguard
 
     if (!user) return null; // Should be handled by ProtectedRoute, but safeguard
 
@@ -42,7 +23,7 @@ const DashboardLayout = () => {
 
             {/* Sidebar - Desktop */}
             <aside className="hidden lg:block fixed left-0 top-0 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-20 transition-colors duration-200">
-                {getSidebar()}
+                <Sidebar user={user} onClose={closeSidebar} />
             </aside>
 
             {/* Sidebar - Mobile Overlay */}
@@ -55,7 +36,7 @@ const DashboardLayout = () => {
 
             {/* Sidebar - Mobile Slide-in */}
             <aside className={`fixed top-0 bottom-0 left-0 w-64 bg-white dark:bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                {getSidebar()}
+                <Sidebar user={user} onClose={closeSidebar} />
             </aside>
 
             {/* Main Content */}

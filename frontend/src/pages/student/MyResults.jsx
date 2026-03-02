@@ -17,6 +17,55 @@ const MyResults = () => {
     const [statistics, setStatistics] = useState(null);
     const user = getCurrentUser();
 
+    // Calculate real-time statistics
+    const calculateStatistics = useCallback((marksData) => {
+        if (!marksData || marksData.length === 0) {
+            setStatistics({
+                cgpa: 0,
+                overallPercentage: 0,
+                totalExams: 0,
+                passCount: 0,
+                failCount: 0,
+                highestScore: null,
+                lowestScore: null,
+                averageMarks: 0
+            });
+            return;
+        }
+
+        const totalMarksObtained = marksData.reduce((sum, m) => sum + m.marks, 0);
+        const totalMaxMarks = marksData.reduce((sum, m) => sum + m.total, 0);
+        const overallPercentage = totalMaxMarks > 0 ? (totalMarksObtained / totalMaxMarks) * 100 : 0;
+
+        // Calculate CGPA (assuming 10-point scale: percentage/10)
+        const cgpa = overallPercentage / 10;
+
+        // Count pass/fail (assuming 40% is passing)
+        const passCount = marksData.filter(m => (m.marks / m.total) * 100 >= 40).length;
+        const failCount = marksData.length - passCount;
+
+        // Find highest and lowest scores
+        const sortedByPercentage = [...marksData].sort((a, b) =>
+            (b.marks / b.total) - (a.marks / a.total)
+        );
+
+        const highestScore = sortedByPercentage[0];
+        const lowestScore = sortedByPercentage[sortedByPercentage.length - 1];
+
+        const averageMarks = totalMarksObtained / marksData.length;
+
+        setStatistics({
+            cgpa: cgpa.toFixed(2),
+            overallPercentage: overallPercentage.toFixed(2),
+            totalExams: marksData.length,
+            passCount,
+            failCount,
+            highestScore,
+            lowestScore,
+            averageMarks: averageMarks.toFixed(2)
+        });
+    }, []);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -71,56 +120,7 @@ const MyResults = () => {
 
         setFilteredMarks(filtered);
         calculateStatistics(filtered);
-    }, [selectedExamType, marks]);
-
-    // Calculate real-time statistics
-    const calculateStatistics = useCallback((marksData) => {
-        if (!marksData || marksData.length === 0) {
-            setStatistics({
-                cgpa: 0,
-                overallPercentage: 0,
-                totalExams: 0,
-                passCount: 0,
-                failCount: 0,
-                highestScore: null,
-                lowestScore: null,
-                averageMarks: 0
-            });
-            return;
-        }
-
-        const totalMarksObtained = marksData.reduce((sum, m) => sum + m.marks, 0);
-        const totalMaxMarks = marksData.reduce((sum, m) => sum + m.total, 0);
-        const overallPercentage = totalMaxMarks > 0 ? (totalMarksObtained / totalMaxMarks) * 100 : 0;
-
-        // Calculate CGPA (assuming 10-point scale: percentage/10)
-        const cgpa = overallPercentage / 10;
-
-        // Count pass/fail (assuming 40% is passing)
-        const passCount = marksData.filter(m => (m.marks / m.total) * 100 >= 40).length;
-        const failCount = marksData.length - passCount;
-
-        // Find highest and lowest scores
-        const sortedByPercentage = [...marksData].sort((a, b) =>
-            (b.marks / b.total) - (a.marks / a.total)
-        );
-
-        const highestScore = sortedByPercentage[0];
-        const lowestScore = sortedByPercentage[sortedByPercentage.length - 1];
-
-        const averageMarks = totalMarksObtained / marksData.length;
-
-        setStatistics({
-            cgpa: cgpa.toFixed(2),
-            overallPercentage: overallPercentage.toFixed(2),
-            totalExams: marksData.length,
-            passCount,
-            failCount,
-            highestScore,
-            lowestScore,
-            averageMarks: averageMarks.toFixed(2)
-        });
-    }, []);
+    }, [selectedExamType, marks, calculateStatistics]);
 
     // Helper to calculate grade and color are now imported from utils
 
