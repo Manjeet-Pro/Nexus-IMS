@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-    registerUser, loginUser, verifyEmail, verifyOTP, resendOTP, forgotPassword, validateResetToken, resetPassword, searchStudents,
+    registerUser, loginUser, verifyEmail, verifyOTP, resendOTP, forgotPassword, validateResetToken, resetPassword, resetPasswordOTP, searchStudents,
     getUserProfile, updateUserProfile,
     getAdminStats, createFaculty, createStudent, updateStudent, deleteStudent, getParents, createParent, updateParent, deleteParent
 } = require('../controllers/userManagementController');
@@ -16,6 +16,7 @@ router.post('/auth/resend-otp', resendOTP);
 router.post('/auth/forgotpassword', forgotPassword);
 router.get('/auth/validate-reset-token/:resetToken', validateResetToken);
 router.put('/auth/resetpassword/:resetToken', resetPassword);
+router.post('/auth/resetpassword-otp', resetPasswordOTP);
 router.get('/auth/search-students', searchStudents);
 
 // User Profile Routes

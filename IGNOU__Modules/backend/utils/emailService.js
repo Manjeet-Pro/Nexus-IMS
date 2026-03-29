@@ -305,4 +305,68 @@ const sendOTPEmail = async (email, otp) => {
     }
 };
 
-module.exports = { sendVerificationEmail, sendEmailAlert, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail };
+/**
+ * Send a 6-digit OTP for password reset
+ * @param {string} email - Recipient email
+ * @param {string} otp - 6-digit OTP code
+ */
+const sendPasswordResetOTPEmail = async (email, otp) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+
+        const mailOptions = {
+            from: `"Nexus Institute" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Nexus Password Reset Code',
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <div style="background-color: #4F46E5; padding: 24px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px;">Nexus Institute</h1>
+                    </div>
+                    <div style="padding: 32px; background-color: white; text-align: center;">
+                        <h2 style="color: #111827; margin-top: 0;">Password Reset Request</h2>
+                        <p style="color: #4b5563; line-height: 1.6; font-size: 16px;">
+                            You are receiving this because you have requested to reset your password. Please use the following One-Time Password (OTP) to complete the process.
+                        </p>
+                        <div style="margin: 32px 0; padding: 20px; background-color: #f3f4f6; border-radius: 12px; letter-spacing: 12px; font-size: 36px; font-weight: bold; color: #4F46E5;">
+                            ${otp}
+                        </div>
+                        <p style="color: #6b7280; font-size: 14px;">
+                            This code is valid for 10 minutes. If you did not request this, please ignore this email.
+                        </p>
+                    </div>
+                    <div style="background-color: #f9fafb; padding: 16px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="color: #9ca3af; font-size: 12px; margin: 0;">&copy; 2024 Nexus Institute Management System. All rights reserved.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            await transporter.sendMail(mailOptions);
+            return true;
+        } else {
+            console.log('--- PASSWORD RESET OTP SIMULATION ---');
+            console.log(`To: ${email}`);
+            console.log(`OTP: ${otp}`);
+            console.log('----------------------------');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error sending password reset OTP email:', error);
+        return false;
+    }
+};
+
+module.exports = { sendVerificationEmail, sendEmailAlert, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail, sendPasswordResetOTPEmail };

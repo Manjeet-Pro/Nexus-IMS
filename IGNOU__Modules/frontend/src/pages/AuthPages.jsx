@@ -134,28 +134,138 @@ export const Login = () => {
 // 2. FORGOT PASSWORD PAGE
 export const ForgotPassword = () => {
     const [email, setEmail] = useState('');
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+    const [step, setStep] = useState(1); // 1: Email, 2: OTP & New Password
     const [error, setError] = useState('');
-    const handleSubmit = async (e) => { e.preventDefault(); setLoading(true); setError(''); try { await api.post('/auth/forgotpassword', { email }); setSubmitted(true); } catch (err) { setError(err.response?.data?.message || 'Error'); } finally { setLoading(false); } };
+    const [success, setSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
+    const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+
+    const handleOtpChange = (index, value) => {
+        if (isNaN(value)) return;
+        const newOtp = [...otp];
+        newOtp[index] = value.substring(value.length - 1);
+        setOtp(newOtp);
+        if (value && index < 5) inputRefs[index + 1].current.focus();
+    };
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) inputRefs[index - 1].current.focus();
+    };
+
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        try {
+            await api.post('/auth/forgotpassword', { email });
+            setStep(2);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error occurred');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResetSubmit = async (e) => {
+        e.preventDefault();
+        const otpValue = otp.join('');
+        if (otpValue.length < 6) return setError('Enter 6-digit OTP');
+        if (!password) return setError('Password is required');
+
+        setLoading(true);
+        setError('');
+        try {
+            await api.post('/auth/resetpassword-otp', { email, otp: otpValue, password });
+            setSuccess(true);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Reset failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 text-center animate-in zoom-in">
+                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+                    <h2 className="text-3xl font-extrabold text-black">Success!</h2>
+                    <p className="text-gray-500 mt-2 mb-8">Your password has been reset successfully.</p>
+                    <Link to="/login" className="block w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg">Back to Sign In</Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-12 relative z-10 animate-in zoom-in border border-white/20">
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-12 relative animate-in zoom-in border border-white/20">
                 <div className="text-center mb-10">
-                    <div className="w-20 h-20 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/20"><Mail className="w-10 h-10 text-white" /></div>
-                    <h2 className="text-3xl font-extrabold text-black">Forgot?</h2>
-                    <p className="text-gray-500 mt-3">We'll send reset instructions.</p>
+                    <div className="w-20 h-20 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/20">
+                        {step === 1 ? <Mail className="w-10 h-10 text-white" /> : <Lock className="w-10 h-10 text-white" />}
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-black">{step === 1 ? 'Forgot?' : 'Reset Password'}</h2>
+                    <p className="text-gray-500 mt-3">{step === 1 ? "We'll send an OTP to your email." : "Enter the OTP sent to your email and your new password."}</p>
                 </div>
-                {!submitted ? (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {error && <div className="p-4 bg-red-50 text-red-600 text-sm rounded-xl border flex gap-3"><Shield className="w-5 h-5 flex-shrink-0" />{error}</div>}
-                        <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-4 bg-gray-50 border rounded-xl outline-none" placeholder="Email Address" />
-                        <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg flex justify-center gap-2">{loading ? "Sending..." : "Send Reset Link"}</button>
+
+                {step === 1 ? (
+                    <form onSubmit={handleEmailSubmit} className="space-y-6">
+                        {error && <div className="p-4 bg-red-50 text-red-600 text-sm rounded-xl border flex gap-3"><AlertCircle className="w-5 h-5 flex-shrink-0" />{error}</div>}
+                        <div className="relative group">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500" />
+                            <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full !pl-12 px-4 py-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-primary-500" placeholder="Email Address" />
+                        </div>
+                        <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg flex justify-center gap-2">
+                            {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Send OTP"}
+                        </button>
                     </form>
                 ) : (
-                    <div className="text-center space-y-6"><CheckCircle className="w-16 h-16 text-green-500 mx-auto" /><h3 className="text-xl font-bold">Sent!</h3><p>Check your inbox.</p></div>
+                    <form onSubmit={handleResetSubmit} className="space-y-6">
+                        {error && <div className="p-4 bg-red-50 text-red-600 text-sm rounded-xl border flex gap-3"><AlertCircle className="w-5 h-5 flex-shrink-0" />{error}</div>}
+                        
+                        <div className="flex justify-between gap-2">
+                            {otp.map((digit, index) => (
+                                <input
+                                    key={index}
+                                    ref={inputRefs[index]}
+                                    type="text"
+                                    maxLength="1"
+                                    value={digit}
+                                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                    className="w-full h-12 text-center text-xl font-bold bg-gray-50 border rounded-xl focus:border-primary-500 outline-none"
+                                />
+                            ))}
+                        </div>
+
+                        <div className="relative group">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500" />
+                            <input 
+                                type={showPassword ? "text" : "password"} 
+                                required 
+                                value={password} 
+                                onChange={e => setPassword(e.target.value)} 
+                                className="w-full !pl-12 px-4 py-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-primary-500" 
+                                placeholder="New Password" 
+                            />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
+
+                        <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg flex justify-center gap-2">
+                            {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Reset Password"}
+                        </button>
+                    </form>
                 )}
-                <div className="mt-10 text-center"><Link to="/login" className="text-gray-500 text-sm font-bold flex items-center justify-center gap-2"><ArrowLeft className="w-4 h-4" />Back to Sign In</Link></div>
+
+                <div className="mt-10 text-center">
+                    <Link to="/login" className="text-gray-500 text-sm font-bold flex items-center justify-center gap-2"><ArrowLeft className="w-4 h-4" />Back to Sign In</Link>
+                </div>
             </div>
         </div>
     );

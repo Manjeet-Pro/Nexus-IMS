@@ -8,7 +8,7 @@ const Parent = require('../models/Parent');
 const Course = require('../models/Course');
 const Fee = require('../models/Fee');
 const generateToken = require('../utils/generateToken');
-const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail } = require('../utils/emailService');
+const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail, sendPasswordResetOTPEmail } = require('../utils/emailService');
 const { createNotification } = require('../utils/notificationHelper');
 
 // ==========================================
@@ -101,19 +101,50 @@ exports.forgotPassword = async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });
         if (!user) return res.status(404).json({ message: 'User not found' });
-        const resetToken = crypto.randomBytes(20).toString('hex');
-        user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
         await user.save();
+
         try {
-            await sendPasswordResetEmail(user.email, resetToken);
-            res.status(200).json({ success: true, data: 'Email sent' });
+            await sendPasswordResetOTPEmail(user.email, otp);
+            res.status(200).json({ success: true, message: 'OTP sent to email' });
         } catch (err) {
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpire = undefined;
+            user.otp = undefined;
+            user.otpExpire = undefined;
             await user.save();
             return res.status(500).json({ message: 'Email could not be sent' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.resetPasswordOTP = async (req, res) => {
+    try {
+        const { email, otp, password } = req.body;
+        const user = await User.findOne({ 
+            email, 
+            otp, 
+            otpExpire: { $gt: Date.now() } 
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.otp = undefined;
+        user.otpExpire = undefined;
+        await user.save();
+
+        res.status(200).json({ 
+            success: true, 
+            message: 'Password updated successfully',
+            token: generateToken(user._id) 
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
