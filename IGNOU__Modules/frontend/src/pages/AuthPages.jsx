@@ -101,7 +101,7 @@ export const Login = () => {
                                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full !pl-16 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none" placeholder="Email Address" />
                             </div>
                             <div className="relative group">
-                                <div className="flex justify-between items-center mb-1 ml-1"><label className="text-sm font-semibold text-gray-700">Password</label>{isLogin && <Link to="/forgot-password" title="Forgot?" className="text-sm text-primary-600 font-medium">Forgot?</Link>}</div>
+                                <div className="flex justify-between items-center mb-1 ml-1"><label className="text-sm font-semibold text-gray-700">Password</label>{isLogin && <Link to="/forgot-password" title="Forgot?" className="text-sm text-black font-medium">Forgot?</Link>}</div>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500" />
                                     <input 
@@ -143,7 +143,7 @@ export const ForgotPassword = () => {
             <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-12 relative z-10 animate-in zoom-in border border-white/20">
                 <div className="text-center mb-10">
                     <div className="w-20 h-20 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/20"><Mail className="w-10 h-10 text-white" /></div>
-                    <h2 className="text-3xl font-extrabold">Forgot?</h2>
+                    <h2 className="text-3xl font-extrabold text-black">Forgot?</h2>
                     <p className="text-gray-500 mt-3">We'll send reset instructions.</p>
                 </div>
                 {!submitted ? (
