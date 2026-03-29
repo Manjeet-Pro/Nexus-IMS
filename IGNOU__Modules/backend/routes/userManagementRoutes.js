@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-    registerUser, loginUser, verifyEmail, verifyOTP, resendOTP, forgotPassword, validateResetToken, resetPassword, resetPasswordOTP, searchStudents,
+    registerUser, loginUser, verifyOTP, resendOTP, forgotPassword, resetPasswordOTP, searchStudents,
     getUserProfile, updateUserProfile,
     getAdminStats, createFaculty, createStudent, updateStudent, deleteStudent, getParents, createParent, updateParent, deleteParent
 } = require('../controllers/userManagementController');
@@ -10,12 +10,9 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // Auth Routes
 router.post('/auth/register', registerUser);
 router.post('/auth/login', loginUser);
-router.get('/auth/verifyemail/:token', verifyEmail);
 router.post('/auth/verify-otp', verifyOTP);
 router.post('/auth/resend-otp', resendOTP);
 router.post('/auth/forgotpassword', forgotPassword);
-router.get('/auth/validate-reset-token/:resetToken', validateResetToken);
-router.put('/auth/resetpassword/:resetToken', resetPassword);
 router.post('/auth/resetpassword-otp', resetPasswordOTP);
 router.get('/auth/search-students', searchStudents);
 

@@ -8,7 +8,7 @@ const Parent = require('../models/Parent');
 const Course = require('../models/Course');
 const Fee = require('../models/Fee');
 const generateToken = require('../utils/generateToken');
-const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail, sendPasswordResetOTPEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendOTPEmail, sendPasswordResetOTPEmail } = require('../utils/emailService');
 const { createNotification } = require('../utils/notificationHelper');
 
 // ==========================================
@@ -150,47 +150,8 @@ exports.resetPasswordOTP = async (req, res) => {
     }
 };
 
-exports.validateResetToken = async (req, res) => {
-    try {
-        const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
-        const user = await User.findOne({ resetPasswordToken, resetPasswordExpire: { $gt: Date.now() } });
-        if (!user) return res.status(400).json({ valid: false, message: 'Expired or used token' });
-        res.status(200).json({ valid: true, message: 'Token is valid' });
-    } catch (error) {
-        res.status(500).json({ valid: false, message: error.message });
-    }
-};
 
-exports.resetPassword = async (req, res) => {
-    try {
-        const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
-        const user = await User.findOne({ resetPasswordToken, resetPasswordExpire: { $gt: Date.now() } });
-        if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(req.body.password, salt);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = Date.now() - 1000;
-        await user.save();
-        res.status(200).json({ success: true, data: 'Password updated', token: generateToken(user._id) });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
-exports.verifyEmail = async (req, res) => {
-    try {
-        const user = await User.findOne({ verificationToken: req.params.token, verificationTokenExpire: { $gt: Date.now() } });
-        if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpire = undefined;
-        await user.save();
-        await sendWelcomeEmail(user.email, user.name);
-        res.status(200).json({ message: 'Email verified', success: true });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 exports.verifyOTP = async (req, res) => {
     try {

@@ -271,67 +271,6 @@ export const ForgotPassword = () => {
     );
 };
 
-// 3. RESET PASSWORD PAGE
-export const ResetPassword = () => {
-    const { token } = useParams(); const navigate = useNavigate();
-    const [password, setPassword] = useState(''); const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false); const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false); const [validating, setValidating] = useState(true);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    useEffect(() => { const v = async () => { try { await api.get(`/auth/validate-reset-token/${token}`); } catch { setError('Invalid link'); } finally { setValidating(false); } }; v(); }, [token]);
-    const handleSubmit = async e => { e.preventDefault(); if (password !== confirmPassword) return setError("Mismatch"); setLoading(true); try { await api.put(`/auth/resetpassword/${token}`, { password }); setSuccess(true); setTimeout(() => navigate('/login'), 3000); } catch { setError('Error'); } finally { setLoading(false); } };
-    if (validating) return <div className="min-h-screen flex items-center justify-center font-medium">Validating...</div>;
-    return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-12 animate-in zoom-in">
-                <h2 className="text-3xl font-extrabold text-center mb-10">Reset Password</h2>
-                {!success ? (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {error && <div className="p-4 bg-red-50 text-red-600 text-sm rounded-xl">{error}</div>}
-                        <div className="relative">
-                            <input 
-                                type={showPassword ? "text" : "password"} 
-                                required 
-                                value={password} 
-                                onChange={e => setPassword(e.target.value)} 
-                                className="w-full px-4 pr-12 py-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-primary-500" 
-                                placeholder="New Password" 
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors"
-                            >
-                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                            </button>
-                        </div>
-                        <div className="relative">
-                            <input 
-                                type={showConfirmPassword ? "text" : "password"} 
-                                required 
-                                value={confirmPassword} 
-                                onChange={e => setConfirmPassword(e.target.value)} 
-                                className="w-full px-4 pr-12 py-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-primary-500" 
-                                placeholder="Confirm" 
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors"
-                            >
-                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                            </button>
-                        </div>
-                        <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl">{loading ? "Updating..." : "Update Password"}</button>
-                    </form>
-                ) : (
-                    <div className="text-center"><CheckCircle className="w-16 h-16 text-green-500 mx-auto" /><h3 className="text-xl font-bold mt-4">Success!</h3><p>Redirecting to login...</p></div>
-                )}
-            </div>
-        </div>
-    );
-};
 
 // 4. VERIFY EMAIL PAGE
 export const VerifyEmail = () => {
