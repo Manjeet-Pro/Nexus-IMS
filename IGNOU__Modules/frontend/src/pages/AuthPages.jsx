@@ -69,7 +69,7 @@ export const Login = () => {
                 </div>
                 <div className="md:w-1/2 p-8 md:p-12 bg-white flex flex-col justify-center">
                     <div className="max-w-md mx-auto w-full">
-                        <h2 className="text-3xl font-extrabold mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+                        <h2 className="text-3xl font-extrabold mb-2 text-black">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
                         <p className="text-gray-500 mb-8">{isLogin ? 'Access your dashboard.' : 'Fill in your details.'}</p>
                         {error && <div className={`mb-6 p-4 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 flex gap-3 ${shake ? 'animate-shake' : ''}`}><Shield className="w-5 h-5 flex-shrink-0" /><div><span className="font-medium block">Error</span>{error}</div></div>}
                         <form onSubmit={handleAuth} className="space-y-5">
