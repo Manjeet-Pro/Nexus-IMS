@@ -5,7 +5,7 @@ import api from '../utils/api';
 import {
     GraduationCap, User, Shield, BookOpen, Mail, Lock, ArrowRight,
     CheckCircle2, Search, X, Plus, AlertCircle, ArrowLeft, CheckCircle, XCircle,
-    Eye, EyeOff, RefreshCw
+    Eye, EyeOff, RefreshCw, Info, PhoneCall
 } from 'lucide-react';
 
 // 1. LOGIN & REGISTER PAGE
@@ -65,7 +65,13 @@ export const Login = () => {
                         <div className="flex items-center gap-4 p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5 hover:bg-white/20 transition-all"><Shield className="w-5 h-5" /><div><h3 className="font-bold">Secure</h3><p className="text-xs opacity-70">Enterprise standards</p></div></div>
                         <div className="flex items-center gap-4 p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5 hover:bg-white/20 transition-all"><BookOpen className="w-5 h-5" /><div><h3 className="font-bold">Smart</h3><p className="text-xs opacity-70">Academic resources</p></div></div>
                     </div>
-                    <div className="mt-auto pt-8 text-xs opacity-60 flex gap-2"><span>© 2026 Nexus</span><span>•</span><span>v1.0.0</span></div>
+                    <div className="mt-auto pt-8 text-xs opacity-60 flex flex-wrap gap-4 items-center tracking-wider font-bold uppercase transition-all">
+                        <span>© 2026 Nexus IMS</span>
+                        <span className="opacity-40">•</span>
+                        <Link to="/about" className="hover:text-white transition-colors flex items-center gap-1"><Info className="w-3 h-3" /> About</Link>
+                        <span className="opacity-40">•</span>
+                        <Link to="/contact" className="hover:text-white transition-colors flex items-center gap-1"><PhoneCall className="w-3 h-3" /> Contact</Link>
+                    </div>
                 </div>
                 <div className="md:w-1/2 p-8 md:p-12 bg-white flex flex-col justify-center">
                     <div className="max-w-md mx-auto w-full">

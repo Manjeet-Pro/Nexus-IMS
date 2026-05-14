@@ -9,6 +9,7 @@ const Course = require('../models/Course');
 const Fee = require('../models/Fee');
 const generateToken = require('../utils/generateToken');
 const { sendWelcomeEmail, sendOTPEmail, sendPasswordResetOTPEmail } = require('../utils/emailService');
+const logger = require('../utils/logger');
 const { createNotification } = require('../utils/notificationHelper');
 
 // ==========================================
@@ -66,7 +67,8 @@ exports.registerUser = async (req, res) => {
                     address: extraData?.address || ''
                 });
             }
-            sendOTPEmail(user.email, otp).catch(e => console.error("OTP Email Error:", e.message));
+            // Attempt to send OTP (non-blocking in registration)
+            sendOTPEmail(user.email, otp).catch(e => logger.error("OTP Email Error:", e.message));
             return res.status(201).json({
                 _id: user._id, name: user.name, email: user.email, role: user.role, isVerified: false,
                 message: 'Registration successful! Please check your email for the 6-digit verification code.'
@@ -75,6 +77,7 @@ exports.registerUser = async (req, res) => {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
+        logger.error('Registration failed:', error.message);
         res.status(500).json({ message: `Registration failed: ${error.message}` });
     }
 };

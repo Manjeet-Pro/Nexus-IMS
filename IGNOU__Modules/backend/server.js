@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 dotenv.config();
+const logger = require('./utils/logger');
 const helmet = require('helmet');
 const { protect } = require('./middleware/authMiddleware');
 const checkMaintenance = require('./middleware/maintenanceMiddleware');
@@ -20,6 +21,12 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const path = require('path');
 app.use(helmet()); // Add helmet for security
+
+// Simple Request Logger
+app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.url}`);
+    next();
+});
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -49,6 +56,15 @@ app.get('/', (req, res) => {
     res.send('Nexus API is running...');
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+    logger.error('Unhandled Error:', err.message);
+    res.status(500).json({
+        success: false,
+        message: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+    });
+});
+
 const http = require('http');
 const socketUtils = require('./utils/socket');
 
@@ -65,12 +81,30 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
 
 mongoose.connect(MONGODB_URI)
     .then(() => {
-        console.log('Connected to MongoDB');
+        logger.info('Connected to MongoDB');
         server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+            logger.info(`Server running on port ${PORT}`);
         });
     })
     .catch((err) => {
-        console.error('MongoDB connection error:', err);
-        process.exit(1); // Exit process with failure code
+        logger.error('MongoDB connection error:', err.message);
+        // Don't exit immediately if in dev, nodemon will handle it
+        if (process.env.NODE_ENV === 'production') {
+            process.exit(1);
+        }
     });
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise);
+    logger.error('Reason:', reason);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    logger.error('Uncaught Exception:', err);
+    // Give time for logs to write
+    setTimeout(() => {
+        process.exit(1);
+    }, 1000);
+});

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Login, ForgotPassword, ResetPassword, VerifyEmail } from './pages/AuthPages';
+import { Login, ForgotPassword, VerifyEmail } from './pages/AuthPages';
 import DashboardLayout from './layout/DashboardLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import HomeRedirect from './routes/HomeRedirect';
@@ -43,6 +43,8 @@ import ChildDetails from './pages/parent/ChildDetails';
 import ParentFees from './pages/parent/ParentFees';
 import ParentNotices from './pages/parent/ParentNotices';
 import Maintenance from './pages/Maintenance';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -55,6 +57,8 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* Protected Routes */}
         <Route path="/" element={

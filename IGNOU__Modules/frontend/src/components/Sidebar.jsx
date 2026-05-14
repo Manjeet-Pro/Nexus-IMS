@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import {
     LayoutDashboard, Users, GraduationCap, Settings, IndianRupee,
-    BookOpen, UserCircle, Calendar, Award, Bell, Clock, FileText, CreditCard
+    BookOpen, UserCircle, Calendar, Award, Bell, Clock, FileText, CreditCard,
+    Info, PhoneCall
 } from 'lucide-react';
 
 const Sidebar = ({ user, onClose }) => {
@@ -79,6 +80,36 @@ const Sidebar = ({ user, onClose }) => {
                         <span>{link.label}</span>
                     </NavLink>
                 ))}
+
+                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
+                    <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">General</p>
+                    <NavLink
+                        to="/about"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
+                                ? 'bg-primary-50 text-primary-700 font-medium dark:bg-primary-900/10 dark:text-primary-300'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200'
+                            }`
+                        }
+                    >
+                        <Info className="w-5 h-5" />
+                        <span>About Us</span>
+                    </NavLink>
+                    <NavLink
+                        to="/contact"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
+                                ? 'bg-primary-50 text-primary-700 font-medium dark:bg-primary-900/10 dark:text-primary-300'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200'
+                            }`
+                        }
+                    >
+                        <PhoneCall className="w-5 h-5" />
+                        <span>Contact Us</span>
+                    </NavLink>
+                </div>
             </nav>
 
             {user?.role === 'admin' && (
