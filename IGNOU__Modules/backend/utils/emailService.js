@@ -19,19 +19,25 @@ const getTransporter = () => {
     }
 
     try {
-        transporter = nodemailer.createTransport({
-            host,
-            port,
-            secure,
+        const transportConfig = {
             auth: { user, pass },
-            tls: {
-                rejectUnauthorized: false
-            },
-            connectionTimeout: 15000,
-            greetingTimeout: 15000,
-            socketTimeout: 15000
-        });
-        logger.info(`Email transporter initialized: ${host}:${port} (Secure: ${secure})`);
+            tls: { rejectUnauthorized: false },
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 20000
+        };
+
+        // If host is Gmail, use the built-in service driver which is often more reliable
+        if (host === 'smtp.gmail.com') {
+            transportConfig.service = 'gmail';
+        } else {
+            transportConfig.host = host;
+            transportConfig.port = port;
+            transportConfig.secure = secure;
+        }
+
+        transporter = nodemailer.createTransport(transportConfig);
+        logger.info(`Email transporter initialized: ${host === 'smtp.gmail.com' ? 'Gmail Service' : host}`);
         return transporter;
     } catch (error) {
         logger.error('Failed to initialize email transporter:', error.message);
