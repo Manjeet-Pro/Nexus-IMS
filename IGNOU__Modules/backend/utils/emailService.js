@@ -15,8 +15,8 @@ const getTransporter = () => {
     try {
         transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
+            port: 465,
+            secure: true, // Use SSL
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
@@ -25,7 +25,7 @@ const getTransporter = () => {
                 rejectUnauthorized: false
             }
         });
-        logger.info('Email transporter initialized successfully.');
+        logger.info('Email transporter initialized successfully (Port 465 SSL).');
         return transporter;
     } catch (error) {
         logger.error('Failed to initialize email transporter:', error.message);
