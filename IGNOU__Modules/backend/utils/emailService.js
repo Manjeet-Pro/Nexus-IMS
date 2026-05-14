@@ -23,7 +23,10 @@ const getTransporter = () => {
             },
             tls: {
                 rejectUnauthorized: false
-            }
+            },
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 10000,   // 10 seconds
+            socketTimeout: 10000      // 10 seconds
         });
         logger.info('Email transporter initialized successfully (Port 465 SSL).');
         return transporter;

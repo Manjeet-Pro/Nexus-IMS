@@ -110,16 +110,14 @@ exports.forgotPassword = async (req, res) => {
         user.otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
         await user.save();
 
-        try {
-            await sendPasswordResetOTPEmail(user.email, otp);
-            res.status(200).json({ success: true, message: 'OTP sent to email' });
-        } catch (err) {
-            user.otp = undefined;
-            user.otpExpire = undefined;
-            await user.save();
-            return res.status(500).json({ message: 'Email could not be sent' });
-        }
+        // Send OTP in background to respond faster
+        sendPasswordResetOTPEmail(user.email, otp).catch(err => {
+            logger.error('Background Password Reset OTP Error:', err.message);
+        });
+
+        res.status(200).json({ success: true, message: 'If that email exists, an OTP has been sent.' });
     } catch (error) {
+        logger.error('Forgot Password Error:', error.message);
         res.status(500).json({ message: error.message });
     }
 };
@@ -204,9 +202,14 @@ exports.resendOTP = async (req, res) => {
         user.otpExpire = otpExpire;
         await user.save();
 
-        await sendOTPEmail(user.email, otp);
+        // Send OTP in background
+        sendOTPEmail(user.email, otp).catch(err => {
+            logger.error('Background Resend OTP Error:', err.message);
+        });
+
         res.status(200).json({ message: 'OTP resent successfully' });
     } catch (error) {
+        logger.error('Resend OTP Error:', error.message);
         res.status(500).json({ message: error.message });
     }
 };
