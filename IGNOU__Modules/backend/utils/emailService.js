@@ -19,6 +19,7 @@ const getTransporter = () => {
     }
 
     try {
+        logger.info(`Initializing transporter for user: ${user} on host: ${host}`);
         const transportConfig = {
             auth: { user, pass },
             tls: { rejectUnauthorized: false },
