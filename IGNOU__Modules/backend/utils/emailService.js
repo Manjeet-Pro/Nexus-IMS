@@ -7,28 +7,31 @@ let transporter = null;
 const getTransporter = () => {
     if (transporter) return transporter;
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    const user = process.env.EMAIL_USER;
+    const pass = process.env.EMAIL_PASS;
+    const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+    const port = parseInt(process.env.EMAIL_PORT) || 465;
+    const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
+
+    if (!user || !pass) {
         logger.warn('Email credentials missing. Email service will run in SIMULATION mode.');
         return null;
     }
 
     try {
         transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true, // Use SSL
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
+            host,
+            port,
+            secure,
+            auth: { user, pass },
             tls: {
                 rejectUnauthorized: false
             },
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 10000,   // 10 seconds
-            socketTimeout: 10000      // 10 seconds
+            connectionTimeout: 15000,
+            greetingTimeout: 15000,
+            socketTimeout: 15000
         });
-        logger.info('Email transporter initialized successfully (Port 465 SSL).');
+        logger.info(`Email transporter initialized: ${host}:${port} (Secure: ${secure})`);
         return transporter;
     } catch (error) {
         logger.error('Failed to initialize email transporter:', error.message);
@@ -52,9 +55,9 @@ const verifyTransporter = async () => {
     } catch (error) {
         logger.error('❌ Email Service Error:', error.message);
         if (error.message.includes('EAUTH')) {
-            logger.error('Suggestion: Check your EMAIL_USER and EMAIL_PASS (App Password).');
-        } else if (error.message.includes('ETIMEDOUT')) {
-            logger.error('Suggestion: Port 465 might be blocked by your host. Try a professional email service like Brevo.');
+            logger.error('Suggestion: Check your EMAIL_USER and EMAIL_PASS (App Password / API Key).');
+        } else {
+            logger.error('Suggestion: If using Gmail on Render/Cloud, it might be blocked. Switch to Brevo (smtp-relay.brevo.com) for 100% reliability.');
         }
         return false;
     }
