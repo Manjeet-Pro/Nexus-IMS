@@ -80,8 +80,13 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
 }
 
 mongoose.connect(MONGODB_URI)
-    .then(() => {
+    .then(async () => {
         logger.info('Connected to MongoDB');
+        
+        // Verify Email Service on startup
+        const { verifyTransporter } = require('./utils/emailService');
+        await verifyTransporter();
+
         server.listen(PORT, () => {
             logger.info(`Server running on port ${PORT}`);
         });

@@ -37,6 +37,30 @@ const getTransporter = () => {
 };
 
 /**
+ * Verify the transporter connection
+ */
+const verifyTransporter = async () => {
+    const mailTransporter = getTransporter();
+    if (!mailTransporter) {
+        logger.warn('Email Service: Running in SIMULATION mode (Check .env)');
+        return false;
+    }
+    try {
+        await mailTransporter.verify();
+        logger.info('✅ Email Service: Ready to send emails');
+        return true;
+    } catch (error) {
+        logger.error('❌ Email Service Error:', error.message);
+        if (error.message.includes('EAUTH')) {
+            logger.error('Suggestion: Check your EMAIL_USER and EMAIL_PASS (App Password).');
+        } else if (error.message.includes('ETIMEDOUT')) {
+            logger.error('Suggestion: Port 465 might be blocked by your host. Try a professional email service like Brevo.');
+        }
+        return false;
+    }
+};
+
+/**
  * Send a generic email alert
  */
 const sendEmailAlert = async (to, subject, title, body, actionLink = null) => {
@@ -222,4 +246,4 @@ const sendPasswordResetOTPEmail = async (email, otp) => {
     }
 };
 
-module.exports = { sendEmailAlert, sendWelcomeEmail, sendOTPEmail, sendPasswordResetOTPEmail };
+module.exports = { sendEmailAlert, sendWelcomeEmail, sendOTPEmail, sendPasswordResetOTPEmail, verifyTransporter };
