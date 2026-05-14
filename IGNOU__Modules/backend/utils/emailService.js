@@ -18,6 +18,10 @@ const getTransporter = () => {
         return null;
     }
 
+    // Debug: Log password format (masked)
+    const maskedPass = pass.substring(0, 3) + '...' + pass.substring(pass.length - 3);
+    logger.info(`Email Debug: User=${user}, Host=${host}, PassLength=${pass.length}, PassFormat=${maskedPass}`);
+
     try {
         logger.info(`Initializing transporter for user: ${user} on host: ${host}`);
         const transportConfig = {
