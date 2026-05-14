@@ -162,8 +162,10 @@ const sendWelcomeEmail = async (email, name) => {
 const sendOTPEmail = async (email, otp) => {
     try {
         const mailTransporter = getTransporter();
+        const hostUsed = process.env.EMAIL_HOST || 'smtp.gmail.com';
 
         if (mailTransporter) {
+            logger.info(`Attempting to send OTP to ${email} via ${hostUsed}...`);
             const mailOptions = {
                 from: `"Nexus Institute" <${process.env.EMAIL_USER}>`,
                 to: email,
@@ -212,8 +214,10 @@ const sendOTPEmail = async (email, otp) => {
 const sendPasswordResetOTPEmail = async (email, otp) => {
     try {
         const mailTransporter = getTransporter();
+        const hostUsed = process.env.EMAIL_HOST || 'smtp.gmail.com';
 
         if (mailTransporter) {
+            logger.info(`Attempting to send Password Reset OTP to ${email} via ${hostUsed}...`);
             const mailOptions = {
                 from: `"Nexus Institute" <${process.env.EMAIL_USER}>`,
                 to: email,
