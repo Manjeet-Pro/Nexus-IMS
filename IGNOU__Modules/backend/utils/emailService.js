@@ -62,6 +62,8 @@ const verifyTransporter = async () => {
         logger.error('❌ Email Service Error:', error.message);
         if (error.message.includes('EAUTH')) {
             logger.error('Suggestion: Check your EMAIL_USER and EMAIL_PASS (App Password / API Key).');
+        } else if (error.message.includes('ETIMEDOUT') || error.message.includes('ESOCKET')) {
+            logger.error('Suggestion: SMTP Port might be blocked. Try Port 2525 with EMAIL_SECURE=false.');
         } else {
             logger.error('Suggestion: If using Gmail on Render/Cloud, it might be blocked. Switch to Brevo (smtp-relay.brevo.com) for 100% reliability.');
         }
